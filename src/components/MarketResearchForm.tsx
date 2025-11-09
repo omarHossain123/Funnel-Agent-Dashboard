@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MarketResearchFormData } from "../types";
+import { UserFormData, MarketResearchFormData } from "../types";
 import "./MarketResearchForm.css";
 
 interface MarketResearchFormProps {
@@ -12,7 +12,8 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
   isLoading,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<MarketResearchFormData>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<UserFormData>({
     "Business/Product Name": "",
     "Industry/Business Type": "",
     "Target Audience (Be Specific)": "",
@@ -20,14 +21,9 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
     "Unique Value Proposition": "",
     "Top 3 Pain Points You Solve": "",
     "Existing Copy Sample (Optional)": "",
-    // Hidden fields - send empty strings to N8N
-    "Primary Funnel Type": "",
-    "Conversion Goal & Current Performance": "",
-    "Brand Voice & Personality": "",
-    "Special Offers/Urgency Elements": "",
-    "Success Metrics to Track": "",
-    "Funnel Strategy (paste here)": "",
   });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -39,26 +35,105 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateStep1 = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData["Business/Product Name"].trim()) {
+      newErrors["Business/Product Name"] =
+        "Please enter your business or product name";
+    }
+    if (!formData["Industry/Business Type"].trim()) {
+      newErrors["Industry/Business Type"] =
+        "Please enter your industry or business type";
+    }
+    if (!formData["Target Audience (Be Specific)"].trim()) {
+      newErrors["Target Audience (Be Specific)"] =
+        "Please describe your target audience";
+    }
+    if (!formData["Top 3 Product Benefits"].trim()) {
+      newErrors["Top 3 Product Benefits"] =
+        "Please list your top 3 product benefits";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData["Unique Value Proposition"].trim()) {
+      newErrors["Unique Value Proposition"] =
+        "Please enter your unique value proposition";
+    }
+    if (!formData["Top 3 Pain Points You Solve"].trim()) {
+      newErrors["Top 3 Pain Points You Solve"] =
+        "Please list the top 3 pain points you solve";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+
+    if (!validateStep2()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Map user form data to N8N's expected format
+    const n8nFormData: MarketResearchFormData = {
+      ...formData,
+      // Hidden fields that N8N expects
+      "Primary Funnel Type": "",
+      "Conversion Goal & Current Performance": "",
+      "Brand Voice & Personality": "",
+      "Special Offers/Urgency Elements": "",
+      "Success Metrics to Track": "",
+      "Funnel Strategy (paste here)": "",
+    };
+
+    onSubmit(n8nFormData);
   };
 
   const handleNext = () => {
-    if (currentStep < 2) {
-      setCurrentStep(currentStep + 1);
+    if (validateStep1()) {
+      setCurrentStep(2);
+      setErrors({});
+      setIsSubmitting(false);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      setErrors({});
+      setIsSubmitting(false);
     }
   };
 
-  const progress = (currentStep / 2) * 100;
+  // Progress: 0% at start, 50% at step 2, 100% when submitted
+  const getProgress = () => {
+    if (isSubmitting) return 100;
+    if (currentStep === 1) return 0;
+    if (currentStep === 2) return 50;
+    return 100;
+  };
+
+  const progress = getProgress();
 
   return (
     <div className="form-container">
@@ -91,8 +166,13 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
                 value={formData["Business/Product Name"]}
                 onChange={handleChange}
                 placeholder="Enter your business or product name"
-                required
+                className={errors["Business/Product Name"] ? "error" : ""}
               />
+              {errors["Business/Product Name"] && (
+                <span className="error-message">
+                  {errors["Business/Product Name"]}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
@@ -106,8 +186,13 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
                 value={formData["Industry/Business Type"]}
                 onChange={handleChange}
                 placeholder="e.g., SaaS, E-commerce, Coaching"
-                required
+                className={errors["Industry/Business Type"] ? "error" : ""}
               />
+              {errors["Industry/Business Type"] && (
+                <span className="error-message">
+                  {errors["Industry/Business Type"]}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
@@ -121,8 +206,15 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
                 onChange={handleChange}
                 placeholder="Describe your ideal customer"
                 rows={4}
-                required
+                className={
+                  errors["Target Audience (Be Specific)"] ? "error" : ""
+                }
               />
+              {errors["Target Audience (Be Specific)"] && (
+                <span className="error-message">
+                  {errors["Target Audience (Be Specific)"]}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
@@ -136,8 +228,13 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
                 onChange={handleChange}
                 placeholder="List the top 3 benefits"
                 rows={4}
-                required
+                className={errors["Top 3 Product Benefits"] ? "error" : ""}
               />
+              {errors["Top 3 Product Benefits"] && (
+                <span className="error-message">
+                  {errors["Top 3 Product Benefits"]}
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -159,8 +256,13 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
                 onChange={handleChange}
                 placeholder="What makes you different?"
                 rows={3}
-                required
+                className={errors["Unique Value Proposition"] ? "error" : ""}
               />
+              {errors["Unique Value Proposition"] && (
+                <span className="error-message">
+                  {errors["Unique Value Proposition"]}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
@@ -174,8 +276,13 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
                 onChange={handleChange}
                 placeholder="What problems do you solve?"
                 rows={4}
-                required
+                className={errors["Top 3 Pain Points You Solve"] ? "error" : ""}
               />
+              {errors["Top 3 Pain Points You Solve"] && (
+                <span className="error-message">
+                  {errors["Top 3 Pain Points You Solve"]}
+                </span>
+              )}
             </div>
 
             <div className="form-group">
