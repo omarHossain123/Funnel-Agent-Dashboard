@@ -1,46 +1,118 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ExportMenu } from "./ExportMenu";
+import { AgentType } from "../types";
 import "./OutputPanel.css";
 
 interface OutputPanelProps {
   output: string;
   isLoading: boolean;
   error?: string;
+  agentType: AgentType;
+  onCopySuccess: () => void;
 }
 
 export const OutputPanel: React.FC<OutputPanelProps> = ({
   output,
   isLoading,
   error,
+  agentType,
+  onCopySuccess,
 }) => {
+  const getAgentInfo = () => {
+    switch (agentType) {
+      case "market-research":
+        return {
+          title: "Market Research Output",
+          subtitle: "Deep market analysis & insights",
+          icon: (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          ),
+        };
+      case "sales-page":
+        return {
+          title: "Sales Page Output",
+          subtitle: "High-converting sales copy",
+          icon: (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          ),
+        };
+      case "email-flow":
+        return {
+          title: "Email Sequence Output",
+          subtitle: "Value-dense email flows",
+          icon: (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          ),
+        };
+    }
+  };
+
+  const agentInfo = getAgentInfo();
+
   return (
     <div className="output-panel">
       <div className="output-header">
-        <div className="output-icon">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+        <div className="output-header-left">
+          <div className="output-icon">{agentInfo.icon}</div>
+          <div>
+            <h2 className="output-title">{agentInfo.title}</h2>
+            <p className="output-subtitle">{agentInfo.subtitle}</p>
+          </div>
         </div>
-        <div>
-          <h2 className="output-title">Market Research Output</h2>
-          <p className="output-subtitle">Your research will appear here</p>
+
+        <div className="output-header-right">
+          {output && !isLoading && !error && (
+            <ExportMenu
+              content={output}
+              agentType={agentType}
+              onCopySuccess={onCopySuccess}
+            />
+          )}
         </div>
       </div>
 
       <div className="output-content">
         {isLoading && (
           <div className="loading-state">
-            <div className="loading-spinner"></div>
-            <p className="loading-text">Generating your market research...</p>
-            <p className="loading-subtext">This may take a minute or two</p>
+            <div className="loading-spinner-wrapper">
+              <div className="loading-spinner"></div>
+              <div className="loading-pulse"></div>
+            </div>
+            <p className="loading-text">Generating your content...</p>
+            <p className="loading-subtext">
+              AI is analyzing your inputs and crafting the perfect response
+            </p>
+            {output && (
+              <div className="loading-preview">
+                <p className="loading-preview-label">Preview:</p>
+                <div className="loading-preview-text">
+                  {output.slice(0, 200)}...
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -49,6 +121,12 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
             <div className="error-icon">⚠️</div>
             <h3 className="error-title">Something went wrong</h3>
             <p className="error-message">{error}</p>
+            <button
+              className="error-retry"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -66,8 +144,9 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
                 <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <p className="empty-text">
-              Complete the form and click Generate Research
+            <p className="empty-text">Fill out the form and generate content</p>
+            <p className="empty-subtext">
+              Your AI-generated content will appear here
             </p>
           </div>
         )}

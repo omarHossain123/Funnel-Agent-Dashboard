@@ -1,10 +1,21 @@
 import React, { useState } from "react";
-import { UserFormData, MarketResearchFormData } from "../types";
+import { MarketResearchFormData } from "../types";
 import "./MarketResearchForm.css";
 
 interface MarketResearchFormProps {
   onSubmit: (data: MarketResearchFormData) => void;
   isLoading: boolean;
+}
+
+// Local type for user-facing form
+interface UserFormData {
+  "Business/Product Name": string;
+  "Industry/Business Type": string;
+  "Target Audience (Be Specific)": string;
+  "Top 3 Product Benefits": string;
+  "Unique Value Proposition": string;
+  "Top 3 Pain Points You Solve": string;
+  "Existing Copy Sample (Optional)": string;
 }
 
 export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
@@ -31,7 +42,7 @@ export const MarketResearchForm: React.FC<MarketResearchFormProps> = ({
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData((prev: UserFormData) => ({
       ...prev,
       [name]: value,
     }));

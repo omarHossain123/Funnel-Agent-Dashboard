@@ -1,18 +1,31 @@
 .output-panel {
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .output-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 24px;
+  justify-content: space-between;
+  padding: 24px 32px;
   background: #1a1d24;
   border-radius: 12px 12px 0 0;
   border-bottom: 1px solid #374151;
+  gap: 16px;
+}
+
+.output-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.output-header-right {
+  flex-shrink: 0;
 }
 
 .output-icon {
@@ -21,13 +34,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border-radius: 10px;
   color: white;
+  flex-shrink: 0;
 }
 
 .output-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #f9fafb;
   margin: 0 0 4px 0;
@@ -43,33 +57,72 @@
   background: #1a1d24;
   border-radius: 0 0 12px 12px;
   padding: 32px;
-  min-height: 400px;
-  max-height: 800px;
+  flex: 1;
   overflow-y: auto;
+  min-height: 500px;
 }
 
-/* Loading State */
+/* Loading State - Enhanced */
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loading-spinner-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 24px;
 }
 
 .loading-spinner {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border: 4px solid #374151;
   border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+}
+
+.loading-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 64px;
+  height: 64px;
+  border: 4px solid #3b82f6;
+  border-radius: 50%;
+  opacity: 0;
+  animation: pulse 2s ease-out infinite;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
   }
 }
 
@@ -83,25 +136,68 @@
 .loading-subtext {
   font-size: 14px;
   color: #9ca3af;
-  margin: 0;
+  margin: 0 0 24px 0;
+  text-align: center;
+  max-width: 400px;
 }
 
-/* Error State */
+.loading-preview {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 24px;
+  padding: 20px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 8px;
+}
+
+.loading-preview-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.loading-preview-text {
+  font-size: 14px;
+  color: #d1d5db;
+  line-height: 1.6;
+  opacity: 0.7;
+}
+
+/* Error State - Enhanced */
 .error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
 }
 
 .error-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
 }
 
 .error-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: #ef4444;
   margin: 0 0 12px 0;
@@ -111,34 +207,63 @@
   font-size: 14px;
   color: #9ca3af;
   text-align: center;
-  margin: 0;
+  margin: 0 0 24px 0;
   max-width: 400px;
+  line-height: 1.6;
 }
 
-/* Empty State */
+.error-retry {
+  padding: 10px 24px;
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.error-retry:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Empty State - Enhanced */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 80px 20px;
+  animation: fadeIn 0.3s ease;
 }
 
 .empty-icon {
   color: #4b5563;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  opacity: 0.5;
 }
 
 .empty-text {
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin: 0 0 8px 0;
+}
+
+.empty-subtext {
+  font-size: 14px;
   color: #6b7280;
   margin: 0;
 }
 
-/* Markdown Output Styles */
+/* Markdown Output Styles - Enhanced */
 .markdown-output {
   color: #e5e7eb;
   line-height: 1.7;
+  animation: fadeIn 0.3s ease;
 }
 
 .md-h1 {
@@ -159,6 +284,19 @@
   font-weight: 600;
   color: #f9fafb;
   margin: 28px 0 14px 0;
+  position: relative;
+  padding-left: 16px;
+}
+
+.md-h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 4px;
+  background: #3b82f6;
+  border-radius: 2px;
 }
 
 .md-h3 {
@@ -197,6 +335,7 @@
 
 .md-li::marker {
   color: #3b82f6;
+  font-weight: 600;
 }
 
 .md-blockquote {
@@ -205,6 +344,9 @@
   margin: 20px 0;
   color: #9ca3af;
   font-style: italic;
+  background: rgba(59, 130, 246, 0.05);
+  padding: 16px 20px;
+  border-radius: 0 8px 8px 0;
 }
 
 .md-code-inline {
@@ -214,6 +356,7 @@
   border-radius: 4px;
   font-size: 14px;
   font-family: "Monaco", "Courier New", monospace;
+  border: 1px solid #374151;
 }
 
 .md-code-block {
@@ -227,6 +370,7 @@
   font-family: "Monaco", "Courier New", monospace;
   margin: 16px 0;
   border: 1px solid #374151;
+  line-height: 1.6;
 }
 
 .md-strong {
@@ -258,17 +402,17 @@
 
 /* Scrollbar Styling */
 .output-content::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .output-content::-webkit-scrollbar-track {
   background: #111827;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 .output-content::-webkit-scrollbar-thumb {
   background: #374151;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 .output-content::-webkit-scrollbar-thumb:hover {
@@ -277,17 +421,23 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .output-panel {
-    padding: 12px;
-  }
-
   .output-header {
     padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .output-header-left {
+    width: 100%;
+  }
+
+  .output-header-right {
+    width: 100%;
   }
 
   .output-content {
     padding: 20px;
-    max-height: 600px;
+    min-height: 400px;
   }
 
   .md-h1 {
@@ -300,5 +450,11 @@
 
   .md-h3 {
     font-size: 18px;
+  }
+
+  .loading-state,
+  .error-state,
+  .empty-state {
+    padding: 40px 16px;
   }
 }

@@ -1,0 +1,224 @@
+.agent-tabs {
+  margin-bottom: 40px;
+}
+
+.tabs-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.tabs-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f9fafb;
+  margin: 0 0 8px 0;
+}
+
+.tabs-subtitle {
+  font-size: 16px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.tabs-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tab-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: #1a1d24;
+  border: 2px solid #374151;
+  border-radius: 16px;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  overflow: hidden;
+}
+
+.tab-button:hover {
+  border-color: var(--tab-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.tab-button.active {
+  border-color: var(--tab-color);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--tab-color-rgb), 0.1) 0%,
+    transparent 100%
+  );
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Tab Icon */
+.tab-icon-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tab-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  color: var(--tab-color);
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover .tab-icon {
+  background: var(--tab-color);
+  color: white;
+  transform: scale(1.05);
+}
+
+.tab-button.active .tab-icon {
+  background: var(--tab-color);
+  color: white;
+}
+
+.tab-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Tab Badge (completion indicator) */
+.tab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: 2px solid #1a1d24;
+  animation: badgePop 0.3s ease;
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Tab Content */
+.tab-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tab-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f9fafb;
+  margin: 0 0 4px 0;
+}
+
+.tab-description {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.tab-button.active .tab-name {
+  color: var(--tab-color);
+}
+
+/* Active Indicator */
+.tab-active-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--tab-color);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .tabs-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .tab-button {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabs-title {
+    font-size: 24px;
+  }
+
+  .tabs-subtitle {
+    font-size: 14px;
+  }
+
+  .tab-button {
+    padding: 16px;
+  }
+
+  .tab-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .tab-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tab-name {
+    font-size: 16px;
+  }
+
+  .tab-description {
+    font-size: 13px;
+  }
+}
+
+/* CSS Variables for tab colors */
+.tab-button[style*="--tab-color: #3b82f6"] {
+  --tab-color-rgb: 59, 130, 246;
+}
+
+.tab-button[style*="--tab-color: #10b981"] {
+  --tab-color-rgb: 16, 185, 129;
+}
+
+.tab-button[style*="--tab-color: #f59e0b"] {
+  --tab-color-rgb: 245, 158, 11;
+}

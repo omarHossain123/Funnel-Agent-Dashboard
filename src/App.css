@@ -16,55 +16,182 @@ body {
 
 .app {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
+/* ==========================================
+   HEADER
+   ========================================== */
 
 .app-header {
   background: linear-gradient(135deg, #1a1d24 0%, #0f1115 100%);
   border-bottom: 1px solid #374151;
-  padding: 40px 20px;
+  padding: 24px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.logo svg {
+  width: 28px;
+  height: 28px;
 }
 
 .container {
   max-width: 1600px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
 }
 
 .app-title {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 700;
   color: #f9fafb;
-  margin-bottom: 8px;
-  text-align: center;
+  margin: 0 0 4px 0;
+  background: linear-gradient(135deg, #f9fafb 0%, #d1d5db 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .app-subtitle {
-  font-size: 16px;
+  font-size: 14px;
   color: #9ca3af;
-  text-align: center;
+  margin: 0;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #10b981;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ==========================================
+   MAIN CONTENT
+   ========================================== */
+
 .app-main {
+  flex: 1;
   padding: 40px 20px;
 }
 
 .app-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  grid-template-columns: 600px 1fr;
+  gap: 32px;
   align-items: start;
+  margin-top: 32px;
 }
 
 .form-column,
 .output-column {
-  min-height: 500px;
+  min-height: 600px;
+  animation: fadeInUp 0.4s ease;
 }
 
-/* Responsive Design */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+.app-footer {
+  background: #1a1d24;
+  border-top: 1px solid #374151;
+  padding: 24px 20px;
+  margin-top: auto;
+}
+
+.footer-text {
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 1400px) {
+  .app-grid {
+    grid-template-columns: 550px 1fr;
+    gap: 24px;
+  }
+}
+
 @media (max-width: 1200px) {
   .app-grid {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 24px;
   }
 
   .output-column {
@@ -78,15 +205,39 @@ body {
 
 @media (max-width: 768px) {
   .app-header {
-    padding: 30px 20px;
+    padding: 20px 16px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    width: 100%;
+  }
+
+  .status-badge {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .logo svg {
+    width: 24px;
+    height: 24px;
   }
 
   .app-title {
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .app-subtitle {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .app-main {
@@ -94,6 +245,169 @@ body {
   }
 
   .app-grid {
-    gap: 24px;
+    gap: 20px;
+  }
+
+  .form-column,
+  .output-column {
+    min-height: 500px;
+  }
+
+  .app-footer {
+    padding: 20px 16px;
+  }
+
+  .footer-text {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-left {
+    gap: 12px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .app-title {
+    font-size: 18px;
+  }
+
+  .app-subtitle {
+    font-size: 12px;
+  }
+}
+
+/* ==========================================
+   SCROLLBAR STYLING
+   ========================================== */
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1115;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 6px;
+  border: 3px solid #0f1115;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* ==========================================
+   TRANSITIONS & ANIMATIONS
+   ========================================== */
+
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  transition: all 0.2s ease;
+}
+
+/* ==========================================
+   UTILITY CLASSES
+   ========================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ==========================================
+   LOADING STATES
+   ========================================== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #1a1d24 0%, #374151 50%, #1a1d24 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ==========================================
+   PRINT STYLES
+   ========================================== */
+
+@media print {
+  .app-header,
+  .app-footer,
+  .form-column,
+  .agent-tabs {
+    display: none;
+  }
+
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .output-column {
+    order: 1;
   }
 }
