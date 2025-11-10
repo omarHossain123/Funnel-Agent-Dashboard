@@ -67,8 +67,7 @@ export const AgentTabs: React.FC<AgentTabsProps> = ({
   return (
     <div className="agent-tabs">
       <div className="tabs-header">
-        <h2 className="tabs-title">AI Copywriting Suite</h2>
-        <p className="tabs-subtitle">Select an agent to generate content</p>
+        <h2 className="tabs-title">Select an agent to generate content</h2>
       </div>
 
       <div className="tabs-container">

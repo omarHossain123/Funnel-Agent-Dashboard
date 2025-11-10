@@ -168,6 +168,11 @@ export class N8NService {
                 // This is actual content - accumulate and send
                 fullText += parsed.content;
                 onChunk(parsed.content);
+              } else if (parsed.output) {
+                // Some N8N configs return {"output": "..."} format
+                console.log("✅ Found output field in SSE stream");
+                fullText += parsed.output;
+                onChunk(parsed.output);
               } else if (parsed.type === "begin") {
                 // Stream is starting
                 console.log("🚀 Stream begin:", parsed.nodeName || "");
