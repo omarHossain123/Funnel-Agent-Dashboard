@@ -301,10 +301,7 @@ function App() {
                 </svg>
               </div>
               <div>
-                <h1 className="app-title">AI Copywriting Dashboard</h1>
-                <p className="app-subtitle">
-                  Multi-agent system powered by Claude Sonnet 4.5
-                </p>
+                <h1 className="app-title">Funnel Agents Dashboard</h1>
               </div>
             </div>
             <div className="header-right">
@@ -364,15 +361,6 @@ function App() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="app-footer">
-        <div className="container">
-          <p className="footer-text">
-            Built with React, TypeScript & N8N • Powered by Claude Sonnet 4.5
-          </p>
-        </div>
-      </footer>
 
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />

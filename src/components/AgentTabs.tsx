@@ -43,7 +43,7 @@ const AGENTS = [
   },
   {
     id: "email-flow" as AgentType,
-    name: "Email Sequence",
+    name: "Email Flow",
     description: "Value-dense email flows",
     icon: (
       <svg
