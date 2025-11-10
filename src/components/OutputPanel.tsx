@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ExportMenu } from "./ExportMenu";
@@ -20,6 +20,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
   agentType,
   onCopySuccess,
 }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+
   const getAgentInfo = () => {
     switch (agentType) {
       case "market-research":
@@ -67,6 +69,110 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
             </svg>
           ),
         };
+    }
+  };
+
+  // Split content into shorter pages - more aggressive splitting
+  const pages = useMemo(() => {
+    if (!output) return [output];
+
+    // Strategy 1: Split by H2 headings (##) - most common section divider
+    const h2Splits = output
+      .split(/(?=^## [^#])/m)
+      .filter((page) => page.trim());
+
+    if (h2Splits.length > 1) {
+      // If any H2 section is still too long (>3000 chars), split it further
+      const refinedPages: string[] = [];
+
+      for (const section of h2Splits) {
+        if (section.length <= 3000) {
+          refinedPages.push(section);
+        } else {
+          // Split long sections by H3 headings (###)
+          const h3Splits = section
+            .split(/(?=^### [^#])/m)
+            .filter((s) => s.trim());
+
+          if (h3Splits.length > 1) {
+            refinedPages.push(...h3Splits);
+          } else {
+            // If still no H3s, split by paragraphs at ~2000 char chunks
+            const chunks = splitByParagraphs(section, 2000);
+            refinedPages.push(...chunks);
+          }
+        }
+      }
+
+      return refinedPages;
+    }
+
+    // Strategy 2: If no H2 headings, try H1 headings
+    const h1Splits = output.split(/(?=^# [^#])/m).filter((page) => page.trim());
+
+    if (h1Splits.length > 1) {
+      return h1Splits;
+    }
+
+    // Strategy 3: Fallback - split by smaller character chunks (2000 chars)
+    return splitByParagraphs(output, 2000);
+  }, [output]);
+
+  // Helper function to split by paragraphs while keeping them together
+  const splitByParagraphs = (text: string, maxChars: number): string[] => {
+    const pages: string[] = [];
+    let currentChunk = "";
+    const paragraphs = text.split(/\n\n+/);
+
+    for (const para of paragraphs) {
+      if (currentChunk.length + para.length > maxChars && currentChunk) {
+        pages.push(currentChunk.trim());
+        currentChunk = para;
+      } else {
+        currentChunk += (currentChunk ? "\n\n" : "") + para;
+      }
+    }
+
+    if (currentChunk) {
+      pages.push(currentChunk.trim());
+    }
+
+    return pages.length > 0 ? pages : [text];
+  };
+
+  const totalPages = pages.length;
+  const currentPageContent = pages[currentPage] || "";
+
+  // Reset to page 0 when output changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [output]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!output) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" && currentPage < totalPages - 1) {
+        setCurrentPage((prev) => prev + 1);
+      } else if (e.key === "ArrowLeft" && currentPage > 0) {
+        setCurrentPage((prev) => prev - 1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentPage, totalPages, output]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
@@ -152,51 +258,108 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
         )}
 
         {!isLoading && !error && output && (
-          <div className="markdown-output">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                h1: ({ children }) => <h1 className="md-h1">{children}</h1>,
-                h2: ({ children }) => <h2 className="md-h2">{children}</h2>,
-                h3: ({ children }) => <h3 className="md-h3">{children}</h3>,
-                h4: ({ children }) => <h4 className="md-h4">{children}</h4>,
-                p: ({ children }) => <p className="md-p">{children}</p>,
-                ul: ({ children }) => <ul className="md-ul">{children}</ul>,
-                ol: ({ children }) => <ol className="md-ol">{children}</ol>,
-                li: ({ children }) => <li className="md-li">{children}</li>,
-                blockquote: ({ children }) => (
-                  <blockquote className="md-blockquote">{children}</blockquote>
-                ),
-                code: ({ node, inline, className, children, ...props }: any) =>
-                  inline ? (
-                    <code className="md-code-inline" {...props}>
+          <>
+            <div className="markdown-output paginated-view">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ children }) => <h1 className="md-h1">{children}</h1>,
+                  h2: ({ children }) => <h2 className="md-h2">{children}</h2>,
+                  h3: ({ children }) => <h3 className="md-h3">{children}</h3>,
+                  h4: ({ children }) => <h4 className="md-h4">{children}</h4>,
+                  p: ({ children }) => <p className="md-p">{children}</p>,
+                  ul: ({ children }) => <ul className="md-ul">{children}</ul>,
+                  ol: ({ children }) => <ol className="md-ol">{children}</ol>,
+                  li: ({ children }) => <li className="md-li">{children}</li>,
+                  blockquote: ({ children }) => (
+                    <blockquote className="md-blockquote">
                       {children}
-                    </code>
-                  ) : (
-                    <code className="md-code-block" {...props}>
-                      {children}
-                    </code>
+                    </blockquote>
                   ),
-                strong: ({ children }) => (
-                  <strong className="md-strong">{children}</strong>
-                ),
-                em: ({ children }) => <em className="md-em">{children}</em>,
-                hr: () => <hr className="md-hr" />,
-                a: ({ href, children }) => (
-                  <a
-                    href={href}
-                    className="md-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  code: ({
+                    node,
+                    inline,
+                    className,
+                    children,
+                    ...props
+                  }: any) =>
+                    inline ? (
+                      <code className="md-code-inline" {...props}>
+                        {children}
+                      </code>
+                    ) : (
+                      <code className="md-code-block" {...props}>
+                        {children}
+                      </code>
+                    ),
+                  strong: ({ children }) => (
+                    <strong className="md-strong">{children}</strong>
+                  ),
+                  em: ({ children }) => <em className="md-em">{children}</em>,
+                  hr: () => <hr className="md-hr" />,
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      className="md-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {currentPageContent}
+              </ReactMarkdown>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="pagination-controls">
+                <button
+                  className="pagination-btn"
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 0}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    width="20"
+                    height="20"
                   >
-                    {children}
-                  </a>
-                ),
-              }}
-            >
-              {output}
-            </ReactMarkdown>
-          </div>
+                    <path d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Previous
+                </button>
+
+                <div className="pagination-info">
+                  <span className="page-number">
+                    Page {currentPage + 1} of {totalPages}
+                  </span>
+                  <span className="keyboard-hint">Use ← → arrow keys</span>
+                </div>
+
+                <button
+                  className="pagination-btn"
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages - 1}
+                >
+                  Next
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    width="20"
+                    height="20"
+                  >
+                    <path d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
