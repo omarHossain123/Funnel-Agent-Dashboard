@@ -76,7 +76,7 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     <div className="output-panel">
       <div className="output-header">
         <div className="output-header-left">
-          <div className="output-icon">{agentInfo.icon}</div>
+          <div className={`output-icon ${agentType}`}>{agentInfo.icon}</div>
           <div>
             <h2 className="output-title">{agentInfo.title}</h2>
             <p className="output-subtitle">{agentInfo.subtitle}</p>
