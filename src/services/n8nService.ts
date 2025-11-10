@@ -7,11 +7,11 @@ import {
 // N8N webhook URLs
 const WEBHOOK_URLS = {
   "market-research":
-    "https://omar-h.app.n8n.cloud/webhook-test/cb7f1e13-2985-4045-a98c-1f2d327299a8",
+    "https://omar-h.app.n8n.cloud/webhook/cb7f1e13-2985-4045-a98c-1f2d327299a8",
   "sales-page":
-    "https://omar-h.app.n8n.cloud/webhook-test/9b68b053-a43d-4977-a11b-c4d470ac7bc3",
+    "https://omar-h.app.n8n.cloud/webhook/9b68b053-a43d-4977-a11b-c4d470ac7bc3",
   "email-flow":
-    "https://omar-h.app.n8n.cloud/webhook-test/c5c70d5e-9d36-4daa-8536-e002d29bf8f1",
+    "https://omar-h.app.n8n.cloud/webhook/c5c70d5e-9d36-4daa-8536-e002d29bf8f1",
 };
 
 /**

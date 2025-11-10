@@ -72,53 +72,8 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
     }
   };
 
-  // Split content into shorter pages - more aggressive splitting
-  const pages = useMemo(() => {
-    if (!output) return [output];
-
-    // Strategy 1: Split by H2 headings (##) - most common section divider
-    const h2Splits = output
-      .split(/(?=^## [^#])/m)
-      .filter((page) => page.trim());
-
-    if (h2Splits.length > 1) {
-      // If any H2 section is still too long (>3000 chars), split it further
-      const refinedPages: string[] = [];
-
-      for (const section of h2Splits) {
-        if (section.length <= 3000) {
-          refinedPages.push(section);
-        } else {
-          // Split long sections by H3 headings (###)
-          const h3Splits = section
-            .split(/(?=^### [^#])/m)
-            .filter((s) => s.trim());
-
-          if (h3Splits.length > 1) {
-            refinedPages.push(...h3Splits);
-          } else {
-            // If still no H3s, split by paragraphs at ~2000 char chunks
-            const chunks = splitByParagraphs(section, 2000);
-            refinedPages.push(...chunks);
-          }
-        }
-      }
-
-      return refinedPages;
-    }
-
-    // Strategy 2: If no H2 headings, try H1 headings
-    const h1Splits = output.split(/(?=^# [^#])/m).filter((page) => page.trim());
-
-    if (h1Splits.length > 1) {
-      return h1Splits;
-    }
-
-    // Strategy 3: Fallback - split by smaller character chunks (2000 chars)
-    return splitByParagraphs(output, 2000);
-  }, [output]);
-
   // Helper function to split by paragraphs while keeping them together
+  // MUST BE DEFINED BEFORE useMemo that uses it
   const splitByParagraphs = (text: string, maxChars: number): string[] => {
     const pages: string[] = [];
     let currentChunk = "";
@@ -139,6 +94,108 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({
 
     return pages.length > 0 ? pages : [text];
   };
+
+  // Split content into shorter pages - more aggressive splitting
+  const pages = useMemo(() => {
+    if (!output) return [output];
+
+    // Clean output - remove any JSON wrapper artifacts
+    let cleanOutput = output;
+
+    // Remove {"output":"..."} wrapper if present
+    if (
+      cleanOutput.startsWith('{"output":"') ||
+      cleanOutput.startsWith('[{"output":"')
+    ) {
+      try {
+        // Try to parse as JSON and extract output field
+        const parsed = JSON.parse(
+          cleanOutput.replace(/^\[/, "").replace(/\]$/, "")
+        );
+        if (parsed.output) {
+          cleanOutput = parsed.output;
+        }
+      } catch (e) {
+        // If parsing fails, try regex extraction (using [\s\S] for multiline matching)
+        const match = cleanOutput.match(/"output":"([\s\S]+)"}?\]?$/);
+        if (match && match[1]) {
+          cleanOutput = match[1]
+            .replace(/\\n/g, "\n")
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, "\\");
+        }
+      }
+    }
+
+    // Remove any trailing JSON artifacts (using [\s\S] instead of . with s flag for compatibility)
+    cleanOutput = cleanOutput
+      .replace(/\{"type":"complete"[\s\S]*$/, "")
+      .replace(/\]$/, "")
+      .trim();
+
+    // Strategy 1: Split by H2 headings (##) - most common section divider
+    const h2Splits = cleanOutput
+      .split(/(?=^## [^#])/m)
+      .map((page) => page.trim())
+      .filter((page) => page.length > 5); // Filter out empty or very short pages
+
+    if (h2Splits.length > 1) {
+      // If any H2 section is still too long (>3000 chars), split it further
+      const refinedPages: string[] = [];
+
+      for (const section of h2Splits) {
+        if (section.length <= 3000) {
+          refinedPages.push(section);
+        } else {
+          // Split long sections by H3 headings (###)
+          const h3Splits = section
+            .split(/(?=^### [^#])/m)
+            .map((s) => s.trim())
+            .filter((s) => s.length > 5);
+
+          if (h3Splits.length > 1) {
+            refinedPages.push(...h3Splits);
+          } else {
+            // If still no H3s, split by paragraphs at ~2000 char chunks
+            const chunks = splitByParagraphs(section, 2000);
+            refinedPages.push(...chunks);
+          }
+        }
+      }
+
+      const finalPages = refinedPages.filter((p) => p.length > 5);
+      // If first page is empty or very minimal (just whitespace/newlines), remove it
+      if (
+        finalPages.length > 0 &&
+        finalPages[0].replace(/[\s\n]/g, "").length < 10
+      ) {
+        finalPages.shift();
+      }
+      return finalPages;
+    }
+
+    // Strategy 2: If no H2 headings, try H1 headings
+    const h1Splits = cleanOutput
+      .split(/(?=^# [^#])/m)
+      .map((page) => page.trim())
+      .filter((page) => page.length > 5);
+
+    if (h1Splits.length > 1) {
+      // Check if first page is essentially empty
+      if (h1Splits[0].replace(/[\s\n]/g, "").length < 10) {
+        h1Splits.shift();
+      }
+      return h1Splits;
+    }
+
+    // Strategy 3: Fallback - split by smaller character chunks (2000 chars)
+    const chunks = splitByParagraphs(cleanOutput, 2000);
+    // Remove empty first page if it exists
+    if (chunks.length > 0 && chunks[0].replace(/[\s\n]/g, "").length < 10) {
+      chunks.shift();
+    }
+    return chunks;
+  }, [output]);
 
   const totalPages = pages.length;
   const currentPageContent = pages[currentPage] || "";
