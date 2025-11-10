@@ -301,7 +301,7 @@ function App() {
                 </svg>
               </div>
               <div>
-                <h1 className="app-title">Funnel Agents Dashboard</h1>
+                <h1 className="app-title">Agents Dashboard</h1>
               </div>
             </div>
             <div className="header-right">
